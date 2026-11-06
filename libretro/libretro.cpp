@@ -1228,7 +1228,7 @@ void retro_init(void)
    // Builds the pointer to setting lookup, which sceReg's registry mapping uses.
    g_Config.Init();
    g_Config.Load("", "");
-   g_Config.iInternalResolution = 0;
+   g_Config.iInternalResolution = 1;
 
    // Log levels must be set after g_Config.Load
    g_logManager.SetAllLogLevels(LogLevel::LINFO);

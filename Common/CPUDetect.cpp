@@ -28,6 +28,7 @@
 #ifdef __ANDROID__
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 #elif PPSSPP_PLATFORM(MAC)
 #include <sys/sysctl.h>
 #endif
@@ -115,7 +116,17 @@ static std::vector<int> ParseCPUList(const std::string &filename) {
 	std::string data;
 	std::vector<int> results;
 
-	if (File::ReadSysTextFileToString(Path(filename), &data)) {
+	int fd = open(filename.c_str(), O_RDONLY);
+	if (fd >= 0) {
+		char buf[256];
+		ssize_t n;
+		while ((n = read(fd, buf, sizeof(buf))) > 0) {
+			data.append(buf, n);
+		}
+		close(fd);
+	}
+
+	if (!data.empty()) {
 		std::vector<std::string> ranges;
 		SplitString(data, ',', ranges);
 		for (auto range : ranges) {

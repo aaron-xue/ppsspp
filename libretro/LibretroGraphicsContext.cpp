@@ -114,17 +114,6 @@ LibretroGraphicsContext *LibretroGraphicsContext::CreateGraphicsContext() {
 	}
 #endif
 
-	if (preferred == RETRO_HW_CONTEXT_DUMMY || preferred == RETRO_HW_CONTEXT_OPENGL || preferred == RETRO_HW_CONTEXT_OPENGLES3) {
-		ctx = new LibretroGLContext();
-
-		if (ctx->InitAPI(nullptr, nullptr, &errorMessage)) {
-			return ctx;
-		}
-
-      // Failed? Try next.
-      delete ctx;
-	}
-
 #ifndef HAVE_LIBNX
 	if (preferred == RETRO_HW_CONTEXT_DUMMY || preferred == RETRO_HW_CONTEXT_VULKAN) {
 		ctx = new LibretroVulkanContext();
@@ -137,6 +126,17 @@ LibretroGraphicsContext *LibretroGraphicsContext::CreateGraphicsContext() {
       delete ctx;
 	}
 #endif
+
+	if (preferred == RETRO_HW_CONTEXT_DUMMY || preferred == RETRO_HW_CONTEXT_OPENGL || preferred == RETRO_HW_CONTEXT_OPENGLES3) {
+		ctx = new LibretroGLContext();
+
+		if (ctx->InitAPI(nullptr, nullptr, &errorMessage)) {
+			return ctx;
+		}
+
+      // Failed? Try next.
+      delete ctx;
+	}
 
 #ifdef _WIN32
 	if (preferred == RETRO_HW_CONTEXT_DUMMY || preferred == RETRO_HW_CONTEXT_D3D11) {

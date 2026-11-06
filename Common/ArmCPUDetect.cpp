@@ -84,17 +84,38 @@ std::string GetCPUBrandString() {
 
 // Only Linux platforms have /proc/cpuinfo
 #if PPSSPP_PLATFORM(LINUX)
+#include <fcntl.h>
+#include <unistd.h>
+
 const char procfile[] = "/proc/cpuinfo";
 // https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-devices-system-cpu
 const char syscpupresentfile[] = "/sys/devices/system/cpu/present";
+// Cache /proc/cpuinfo content using raw syscalls (not fopen)
+// to avoid triggering adrenotools fopen hook
+static const std::string &GetCachedProcCpuInfo() {
+	static std::string data;
+	static bool done = false;
+	if (!done) {
+		int fd = open(procfile, O_RDONLY);
+		if (fd >= 0) {
+			char buf[4096];
+			ssize_t n;
+			while ((n = read(fd, buf, sizeof(buf))) > 0) {
+				data.append(buf, n);
+			}
+			close(fd);
+		}
+		done = true;
+	}
+	return data;
+}
 
 std::string GetCPUString() {
-	std::string procdata;
-	bool readSuccess = File::ReadSysTextFileToString(Path(procfile), &procdata);
+	const std::string &procdata = GetCachedProcCpuInfo();
 	std::istringstream file(procdata);
 	std::string cpu_string;
 
-	if (readSuccess) {
+	if (!procdata.empty()) {
 		std::string line, marker = "Hardware\t: ";
 		while (std::getline(file, line)) {
 			if (line.find(marker) != std::string::npos) {
@@ -112,12 +133,11 @@ std::string GetCPUString() {
 }
 
 std::string GetCPUBrandString() {
-	std::string procdata;
-	bool readSuccess = File::ReadSysTextFileToString(Path(procfile), &procdata);
+	const std::string &procdata = GetCachedProcCpuInfo();
 	std::istringstream file(procdata);
 	std::string brand_string;
 
-	if (readSuccess) {
+	if (!procdata.empty()) {
 		std::string line, marker = "Processor\t: ";
 		while (std::getline(file, line)) {
 			if (line.find(marker) != std::string::npos) {
@@ -142,8 +162,8 @@ unsigned char GetCPUImplementer()
 	std::string line, marker = "CPU implementer\t: ";
 	unsigned char implementer = 0;
 
-	std::string procdata;
-	if (!File::ReadSysTextFileToString(Path(procfile), &procdata))
+	const std::string &procdata = GetCachedProcCpuInfo();
+	if (procdata.empty())
 		return 0;
 	std::istringstream file(procdata);
 
@@ -165,8 +185,8 @@ unsigned short GetCPUPart()
 	std::string line, marker = "CPU part\t: ";
 	unsigned short part = 0;
 
-	std::string procdata;
-	if (!File::ReadSysTextFileToString(Path(procfile), &procdata))
+	const std::string &procdata = GetCachedProcCpuInfo();
+	if (procdata.empty())
 		return 0;
 	std::istringstream file(procdata);
 
@@ -187,8 +207,8 @@ bool CheckCPUFeature(const std::string& feature)
 {
 	std::string line, marker = "Features\t: ";
 
-	std::string procdata;
-	if (!File::ReadSysTextFileToString(Path(procfile), &procdata))
+	const std::string &procdata = GetCachedProcCpuInfo();
+	if (procdata.empty())
 		return false;
 	std::istringstream file(procdata);
 	while (std::getline(file, line))
@@ -214,21 +234,30 @@ int GetCoreCount()
 	int cores = 1;
 
 	std::string presentData;
-	bool presentSuccess = File::ReadSysTextFileToString(Path(syscpupresentfile), &presentData);
-	std::istringstream presentFile(presentData);
+	int fd = open(syscpupresentfile, O_RDONLY);
+	bool presentSuccess = false;
+	if (fd >= 0) {
+		char buf[256];
+		ssize_t n = read(fd, buf, sizeof(buf) - 1);
+		if (n > 0) {
+			buf[n] = '\0';
+			presentData = buf;
+			presentSuccess = true;
+		}
+		close(fd);
+	}
 
 	if (presentSuccess) {
 		int low, high, found;
-		std::getline(presentFile, line);
-		found = sscanf(line.c_str(), "%d-%d", &low, &high);
+		found = sscanf(presentData.c_str(), "%d-%d", &low, &high);
 		if (found == 1)
 			return 1;
 		if (found == 2)
 			return high - low + 1;
 	}
 
-	std::string procdata;
-	if (!File::ReadSysTextFileToString(Path(procfile), &procdata))
+	const std::string &procdata = GetCachedProcCpuInfo();
+	if (procdata.empty())
 		return 1;
 	std::istringstream file(procdata);
 	

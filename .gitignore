@@ -152,3 +152,5 @@ RAPrefs_PPSSPP.cfg
 cmake-build-*/
 
 /.vscode/
+obj/local/
+*.so

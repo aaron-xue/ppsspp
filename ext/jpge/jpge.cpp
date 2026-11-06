@@ -1,4 +1,4 @@
-// jpge.cpp - C++ class for JPEG compression. Richard Geldreich <richgel99@gmail.com>
+﻿// jpge.cpp - C++ class for JPEG compression. Richard Geldreich <richgel99@gmail.com>
 // Supports grayscale, H1V1, H2V1, and H2V2 chroma subsampling factors, one or two pass Huffman table optimization, libjpeg-style quality 1-100 quality factors.
 // Also supports using luma quantization tables for chroma.
 //
@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
 
 #define JPGE_MAX(a,b) (((a)>(b))?(a):(b))
 #define JPGE_MIN(a,b) (((a)<(b))?(a):(b))
@@ -954,7 +955,7 @@ namespace jpge {
 		bool open(const char* pFilename)
 		{
 			close();
-			m_pFile = fopen(pFilename, "wb");
+			{ int _fd = ::open(pFilename, O_WRONLY | O_CREAT | O_TRUNC, 0666); m_pFile = _fd >= 0 ? fdopen(_fd, "wb") : NULL; }
 			m_bStatus = (m_pFile != NULL);
 			return m_bStatus;
 		}

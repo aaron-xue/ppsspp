@@ -90,9 +90,8 @@ public:
 		}
 		if (inbytes != blockAlign_ && blockAlign_ != 0) {
 			WARN_LOG(Log::ME, "Atrac3Audio::Decode: inbytes not matching expected blockalign. Updating blockAlign_. Got %d bytes, expected %d. (%s)", inbytes, blockAlign_, at3pCtx_ ? "Atrac3+" : "Atrac3");
+			blockAlign_ = inbytes;
 		}
-
-		blockAlign_ = inbytes;
 		// We just call the decode function directly without going through the whole packet machinery.
 		int result;
 		int nb_samples = 0;

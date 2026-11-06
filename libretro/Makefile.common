@@ -286,7 +286,7 @@ INCFLAGS += -I$(EXTDIR)/libchdr/include
 SOURCES_C += \
 	$(EXTDIR)/libchdr/src/libchdr_bitstream.c \
 	$(EXTDIR)/libchdr/src/libchdr_cdrom.c \
-	$(EXTDIR)/libchdr/src/libchdr_chd.c \
+	$(CORE_DIR)/libretro/patched/libchdr/libchdr_chd.c \
 	$(EXTDIR)/libchdr/src/libchdr_flac.c \
 	$(EXTDIR)/libchdr/src/libchdr_huffman.c
 

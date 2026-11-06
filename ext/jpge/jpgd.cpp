@@ -28,6 +28,8 @@
 //
 #include "jpgd.h"
 #include <string.h>
+#include <fcntl.h>
+#include <stdio.h>
 #include <algorithm>
 #include <assert.h>
 
@@ -3103,7 +3105,7 @@ namespace jpgd {
 		m_pFile = nullptr;
 		fopen_s(&m_pFile, Pfilename, "rb");
 #else
-		m_pFile = fopen(Pfilename, "rb");
+		{ int _fd = ::open(Pfilename, O_RDONLY); m_pFile = _fd >= 0 ? fdopen(_fd, "rb") : NULL; }
 #endif
 		return m_pFile != nullptr;
 	}
