@@ -495,16 +495,16 @@ void GamePauseScreen::CreateSavestateControls(UI::LinearLayout *leftColumnItems,
 
 	*extraRow = nullptr;
 
-	LinearLayout *buttonRow = new LinearLayout(ORIENT_HORIZONTAL, new LinearLayoutParams(Margins(10, 0, 0, 10)));
+	LinearLayout *buttonRow = new LinearLayout(ORIENT_HORIZONTAL, new LinearLayoutParams(Margins(0, 0, 0, 0)));
 	if (g_Config.bEnableStateUndo && !Achievements::HardcoreModeActive() && NetworkAllowSaveState()) {
-		UI::Choice *saveUndoButton = buttonRow->Add(new Choice(pa->T("Undo last save"), ImageID("I_NAVIGATE_BACK"), new LinearLayoutParams(WRAP_CONTENT, WRAP_CONTENT)));
+		UI::Button *saveUndoButton = buttonRow->Add(new Button(pa->T("Undo last save"), ImageID("I_NAVIGATE_BACK"), new LinearLayoutParams(WRAP_CONTENT, ITEM_HEIGHT)));
 		saveUndoButton->SetEnabled(SaveState::HasUndoLastSave(saveStatePrefix_));
 		saveUndoButton->OnClick.Add([this](UI::EventParams &e) {
 			SaveState::UndoLastSave(saveStatePrefix_);
 			RecreateViews();
 		});
 
-		UI::Choice *loadUndoButton = buttonRow->Add(new Choice(pa->T("Undo last load"), ImageID("I_NAVIGATE_BACK"), new LinearLayoutParams(WRAP_CONTENT, WRAP_CONTENT)));
+		UI::Button *loadUndoButton = buttonRow->Add(new Button(pa->T("Undo last load"), ImageID("I_NAVIGATE_BACK"), new LinearLayoutParams(WRAP_CONTENT, ITEM_HEIGHT)));
 		loadUndoButton->SetEnabled(SaveState::HasUndoLoad(saveStatePrefix_));
 		loadUndoButton->OnClick.Add([this](UI::EventParams &e) {
 			CloseAfterStateLoad([this](SaveState::Callback callback) {
@@ -514,7 +514,7 @@ void GamePauseScreen::CreateSavestateControls(UI::LinearLayout *leftColumnItems,
 	}
 
 	if (g_Config.iRewindSnapshotInterval > 0 && !Achievements::HardcoreModeActive() && NetworkAllowSaveState()) {
-		UI::Choice *rewindButton = buttonRow->Add(new Choice(pa->T("Rewind"), ImageID("I_REWIND"), new LinearLayoutParams(WRAP_CONTENT, WRAP_CONTENT)));
+		UI::Button *rewindButton = buttonRow->Add(new Button(pa->T("Rewind"), ImageID("I_REWIND"), new LinearLayoutParams(WRAP_CONTENT, ITEM_HEIGHT)));
 		rewindButton->SetEnabled(SaveState::CanRewind());
 		rewindButton->OnClick.Add([this](UI::EventParams &e) {
 			CloseAfterStateLoad([](SaveState::Callback callback) {
@@ -544,9 +544,9 @@ UI::Margins GamePauseScreen::RootMargins() const {
 void GamePauseScreen::CreateViews() {
 	using namespace UI;
 
-	bool portrait = GetDeviceOrientation() == DeviceOrientation::Portrait;
+	const bool portrait = GetDeviceOrientation() == DeviceOrientation::Portrait;
 
-	Margins scrollMargins(0, 10, 0, 0);
+	Margins scrollMargins(12, 10, 12, 0);
 	Margins actionMenuMargins(0, 10, 15, 0);
 	auto gr = GetI18NCategory(I18NCat::GRAPHICS);
 	auto pa = GetI18NCategory(I18NCat::PAUSE);
@@ -571,7 +571,7 @@ void GamePauseScreen::CreateViews() {
 		} else {
 			title = g_paramSFO.GetValueString("TITLE");
 		}
-		TopBar *topBar = new TopBar(*screenManager()->getUIContext(), TopBarFlags::ContextMenuButton, title);
+		TopBar *topBar = new TopBar(*screenManager()->getUIContext(), TopBarFlags::ContextMenuButton, title, new LinearLayoutParams(FILL_PARENT, WRAP_CONTENT, Margins(12, 12, 12, 0)));
 		root_->Add(topBar);
 
 		topBar->OnContextMenuClick.Add([this, portrait](UI::EventParams &e) {
@@ -661,12 +661,12 @@ void GamePauseScreen::CreateViews() {
 
 	if (showSavestateControls) {
 		if (PSP_CoreParameter().compat.flags().SaveStatesNotRecommended) {
-			LinearLayout *horiz = new LinearLayout(ORIENT_HORIZONTAL);
-			saveDataScrollItems->Add(horiz);
+			LinearLayout *horiz = saveDataScrollItems->Add(new LinearLayout(ORIENT_HORIZONTAL, new LinearLayoutParams(FILL_PARENT, WRAP_CONTENT)));
 			horiz->Add(new NoticeView(NoticeLevel::WARN, pa->T("Using save states is not recommended in this game"), "", new LinearLayoutParams(1.0f)));
-			horiz->Add(new Button(di->T("More info")))->OnClick.Add([](UI::EventParams &e) {
+			horiz->Add(new Choice(di->T("More info"), ImageID("I_LINK_OUT_QUESTION"), new LinearLayoutParams(WRAP_CONTENT, WRAP_CONTENT)))->OnClick.Add([](UI::EventParams &e) {
 				System_LaunchUrl(LaunchUrlType::BROWSER_URL, "https://www.ppsspp.org/docs/troubleshooting/save-state-time-warps");
 			});
+			horiz->ApplyRoundCorners();
 		}
 		LinearLayout *extraRow = nullptr;
 		CreateSavestateControls(saveDataScrollItems, &extraRow);
@@ -724,7 +724,7 @@ void GamePauseScreen::CreateViews() {
 		root_->Add(buttonColumnScroll);
 	}
 
-	LinearLayout *rightColumnItems = new LinearLayout(ORIENT_VERTICAL);
+	LinearLayout *rightColumnItems = new ChoiceGroupList();
 	rightColumnItems->SetSpacing(12.0f);
 
 	buttonColumn->Add(rightColumnItems);
@@ -854,6 +854,7 @@ void GamePauseScreen::CreateViews() {
 		}
 
 		if (!portrait) {
+			middleColumn->Add(new Spacer(12.0f));
 			Choice *menuButton = middleColumn->Add(new Choice("", ImageID("I_THREE_DOTS"), new LinearLayoutParams(64, 64)));
 			menuButton->OnClick.Add([this, menuButton, portrait](UI::EventParams &e) {
 				ShowContextMenu(menuButton, portrait);
