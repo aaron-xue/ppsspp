@@ -142,11 +142,13 @@
 #include "UI/DiscordIntegration.h"
 #include "UI/EmuScreen.h"
 #include "UI/FirmwareScreen.h"
+#include "UI/DriverManagerScreen.h"
 #include "UI/GameInfoCache.h"
 #include "UI/GameSettingsScreen.h"
 #include "UI/GPUDriverTestScreen.h"
 #include "UI/MiscScreens.h"
 #include "UI/MemStickScreen.h"
+#include "UI/StorageTestScreen.h"
 #include "UI/OnScreenDisplay.h"
 #include "UI/SettingsPage.h"
 #include "UI/RemoteISOScreen.h"
@@ -910,9 +912,19 @@ void NativeInit(int argc, const char *argv[], const CommandLineOptions &cmdLineO
 		} else if (equals(cmdLineOptions.startScreen.value(), "memsticksetup")) {
 			g_screenManager->switchScreen(new MainScreen());
 			g_screenManager->push(new MemStickScreen(true));
+		} else if (equals(cmdLineOptions.startScreen.value(), "memstick")) {
+			// As opened from the settings, to move an existing memory stick.
+			g_screenManager->switchScreen(new MainScreen());
+			g_screenManager->push(new MemStickScreen(false));
+		} else if (equals(cmdLineOptions.startScreen.value(), "storagetest")) {
+			g_screenManager->switchScreen(new MainScreen());
+			g_screenManager->push(new StorageTestScreen());
 		} else if (equals(cmdLineOptions.startScreen.value(), "credits")) {
 			g_screenManager->switchScreen(new MainScreen());
 			g_screenManager->push(new CreditsScreen());
+		} else if (equals(cmdLineOptions.startScreen.value(), "driver")) {
+			g_screenManager->switchScreen(new MainScreen());
+			g_screenManager->push(new DriverManagerScreen(Path()));
 		} else {
 			WARN_LOG(Log::System, "Unknown start screen '%s'", cmdLineOptions.startScreen.value().c_str());
 			g_screenManager->switchScreen(new LogoScreen(AfterLogoScreen::DEFAULT));
@@ -1517,6 +1529,12 @@ bool HandleGlobalMessage(UIMessage message, const std::string &value) {
 		return true;
 	}
 	else if (message == UIMessage::PERMISSION_GRANTED && value == "storage") {
+		// Android reports the permission at every startup too (sendInitialGrants). If the config loaded, we had
+		// access all along, and there's nothing to redo: reloading it and creating the directories again cost
+		// half a second of every startup with a memory stick on a content URI.
+		if (g_Config.LoadedFromFile()) {
+			return true;
+		}
 		CreateSysDirectories();
 		// We must have failed to load the config before, so load it now to avoid overwriting the old config
 		// with a freshly generated one.

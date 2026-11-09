@@ -220,10 +220,10 @@ static int GameBrowserViewFromGridView(int legacyGridView, GameBrowserViewMode d
 	return (int)(legacyGridView ? GameBrowserViewMode::GRID : GameBrowserViewMode::LIST);
 }
 
-// Recent, Games and Homebrew switch everyone to the large list, ignoring the old setting. Remote keeps it.
-static int DefaultGameBrowserView1() { return (int)GameBrowserViewMode::LARGE_LIST; }
-static int DefaultGameBrowserView2() { return (int)GameBrowserViewMode::LARGE_LIST; }
-static int DefaultGameBrowserView3() { return (int)GameBrowserViewMode::LARGE_LIST; }
+// Recent, Games and Homebrew switch everyone to the list, ignoring the old setting. Remote keeps it.
+static int DefaultGameBrowserView1() { return (int)GameBrowserViewMode::LIST; }
+static int DefaultGameBrowserView2() { return (int)GameBrowserViewMode::LIST; }
+static int DefaultGameBrowserView3() { return (int)GameBrowserViewMode::LIST; }
 static int DefaultGameBrowserView4() { return GameBrowserViewFromGridView(g_Config.iLegacyGridView4, GameBrowserViewMode::LIST); }
 
 static float DefaultGameGridScale() {
@@ -239,7 +239,10 @@ static float DefaultUISaturation() {
 }
 
 static int DefaultUIScaleFactor() {
-#if PPSSPP_PLATFORM(WINDOWS) || PPSSPP_PLATFORM(LINUX) || PPSSPP_PLATFORM(MAC)
+// Android also return true on Linux, so we check it separately first. It was never intended for it to get -1.
+#if PPSSPP_PLATFORM(ANDROID) || PPSSPP_PLATFORM(IOS)
+	return 0;
+#elif PPSSPP_PLATFORM(WINDOWS) || PPSSPP_PLATFORM(LINUX) || PPSSPP_PLATFORM(MAC)
 	return -1;
 #else
 	return 0;
@@ -414,6 +417,7 @@ static constexpr ConfigSetting generalSettings[] = {
 	ConfigSetting("ShowRegionOnGameIcon", SETTING(g_Config, bShowRegionOnGameIcon), false, CfgFlag::DEFAULT),
 	ConfigSetting("ShowIDOnGameIcon", SETTING(g_Config, bShowIDOnGameIcon), false, CfgFlag::DEFAULT),
 	ConfigSetting("GameGridScale", SETTING(g_Config, fGameGridScale), &DefaultGameGridScale, CfgFlag::DEFAULT),
+	ConfigSetting("GameListScale", SETTING(g_Config, fGameListScale), &DefaultGameGridScale, CfgFlag::DEFAULT),
 	ConfigSetting("GridView4", SETTING(g_Config, iLegacyGridView4), -1, &LegacyGridViewToString, &LegacyGridViewFromString, CfgFlag::DONT_SAVE),
 	// These must come after GridView*, which their defaults are taken from.
 	ConfigSetting("GameBrowserView1", SETTING(g_Config, iGameBrowserView1), &DefaultGameBrowserView1, CfgFlag::DEFAULT),
@@ -454,7 +458,7 @@ static constexpr ConfigSetting generalSettings[] = {
 	ConfigSetting("RemoteISOSharedDir", SETTING(g_Config, sRemoteISOSharedDir), "", CfgFlag::DEFAULT),
 	ConfigSetting("RemoteISOShareType", SETTING(g_Config, iRemoteISOShareType), (int)RemoteISOShareType::RECENT, CfgFlag::DEFAULT),
 	ConfigSetting("AskForExitConfirmationAfterSeconds", SETTING(g_Config, iAskForExitConfirmationAfterSeconds), 300, CfgFlag::PER_GAME)
-		.Label(I18NCat::SYSTEM, "Ask for exit confirmation after seconds").Range(0, 1200).Units("s").ZeroLabel("Off"),
+		.Label(I18NCat::SYSTEM, "Ask for exit confirmation after seconds").Range(0, 1200).Units("seconds").ZeroLabel("Off"),
 
 #if PPSSPP_PLATFORM(ANDROID) || PPSSPP_PLATFORM(IOS)
 	ConfigSetting("ScreenRotation", SETTING(g_Config, iScreenRotation), ROTATION_AUTO, CfgFlag::DEFAULT),
@@ -657,9 +661,6 @@ static int DefaultGPUBackend() {
 	return (int)GPUBackend::OPENGL;
 #endif
 
-#elif PPSSPP_PLATFORM(TVOS) && !defined(__LIBRETRO__)
-	// Metal hasn't been tried on tvOS yet.
-	return (int)GPUBackend::VULKAN;
 #elif PPSSPP_PLATFORM(IOS) && !defined(__LIBRETRO__)
 	return (int)GPUBackend::METAL;
 #endif

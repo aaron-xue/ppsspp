@@ -526,7 +526,7 @@ void GamePauseScreen::CreateSavestateControls(UI::LinearLayout *leftColumnItems,
 	if (buttonRow->GetNumSubviews() == 0) {
 		delete buttonRow;
 	} else {
-		buttonRow->ApplyRoundCorners();
+		buttonRow->SetRoundCorners();
 		*extraRow = buttonRow;
 	}
 }
@@ -666,7 +666,7 @@ void GamePauseScreen::CreateViews() {
 			horiz->Add(new Choice(di->T("More info"), ImageID("I_LINK_OUT_QUESTION"), new LinearLayoutParams(WRAP_CONTENT, WRAP_CONTENT)))->OnClick.Add([](UI::EventParams &e) {
 				System_LaunchUrl(LaunchUrlType::BROWSER_URL, "https://www.ppsspp.org/docs/troubleshooting/save-state-time-warps");
 			});
-			horiz->ApplyRoundCorners();
+			horiz->SetRoundCorners();
 		}
 		LinearLayout *extraRow = nullptr;
 		CreateSavestateControls(saveDataScrollItems, &extraRow);
@@ -716,7 +716,6 @@ void GamePauseScreen::CreateViews() {
 	} else {
 		middleColumn = new LinearLayout(ORIENT_VERTICAL, new LinearLayoutParams(ITEM_HEIGHT, FILL_PARENT, Margins(0, 10, 0, 15)));
 		root_->Add(middleColumn);
-		middleColumn->SetSpacing(0.0f);
 
 		ViewGroup *buttonColumnScroll = new ScrollView(ORIENT_VERTICAL, new LinearLayoutParams(320, FILL_PARENT, actionMenuMargins));
 		buttonColumn = new LinearLayout(ORIENT_VERTICAL, new LinearLayoutParams(WRAP_CONTENT, WRAP_CONTENT));
@@ -725,6 +724,7 @@ void GamePauseScreen::CreateViews() {
 	}
 
 	LinearLayout *rightColumnItems = new ChoiceGroupList();
+	rightColumnItems->SetPadding(Margins(0, 0, 12, 12));
 	rightColumnItems->SetSpacing(12.0f);
 
 	buttonColumn->Add(rightColumnItems);
@@ -828,39 +828,33 @@ void GamePauseScreen::CreateViews() {
 	exit->SetEnabled(!bootPending_);
 
 	if (middleColumn) {
-		middleColumn->SetSpacing(portrait ? 12.0f : 0.0f);
+		middleColumn->SetSpacing(12.0f);
 		playButton_ = middleColumn->Add(new Choice(g_Config.bRunBehindPauseMenu ? ImageID("I_PAUSE_LINE") : ImageID("I_PLAY_LINE"), new LinearLayoutParams(64, 64)));
 		playButton_->OnClick.Add([this](UI::EventParams &e) {
 			g_Config.bRunBehindPauseMenu = !g_Config.bRunBehindPauseMenu;
 			playButton_->SetIconLeft(g_Config.bRunBehindPauseMenu ? ImageID("I_PAUSE_LINE") : ImageID("I_PLAY_LINE"));
 		});
-		playButton_->SetRoundCorners();
 
 		bool mustRunBehind = MustRunBehind();
 		playButton_->SetEnabled(!mustRunBehind);
-
-		if (!portrait) {
-			middleColumn->Add(new Spacer(12.0f));
-		}
 
 		Choice *infoButton = middleColumn->Add(new Choice(ImageID("I_INFO"), new LinearLayoutParams(64, 64)));
 		infoButton->OnClick.Add([this](UI::EventParams &e) {
 			screenManager()->push(new GameScreen(gamePath_, true));
 		});
-		infoButton->SetRoundCorners();
 
 		if (System_GetPropertyBool(SYSPROP_CAN_RESTRICT_ORIENTATION)) {
 			AddRotationPicker(screenManager(), middleColumn, false);
 		}
 
 		if (!portrait) {
-			middleColumn->Add(new Spacer(12.0f));
 			Choice *menuButton = middleColumn->Add(new Choice("", ImageID("I_THREE_DOTS"), new LinearLayoutParams(64, 64)));
 			menuButton->OnClick.Add([this, menuButton, portrait](UI::EventParams &e) {
 				ShowContextMenu(menuButton, portrait);
 			});
-			menuButton->SetRoundCorners();
 		}
+
+		middleColumn->SetRoundCorners();
 	} else {
 		playButton_ = nullptr;
 	}

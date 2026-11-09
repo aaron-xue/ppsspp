@@ -468,6 +468,7 @@ public:
 	bool bShowRegionOnGameIcon;
 	bool bShowIDOnGameIcon;
 	float fGameGridScale;
+	float fGameListScale;
 	int iBackgroundAnimation;  // enum BackgroundAnimation
 	bool bTransparentBackground;
 	int iSettingsCurrentTab;
@@ -798,6 +799,7 @@ public:
 	void SetSearchPath(const Path &path);
 
 	void UpdateIniLocation(const char *iniFileName = nullptr, const char *controllerIniFilename = nullptr);
+	const Path &IniFilename() const { return iniFilename_; }
 
 	bool SupportsUpgradeCheck() const;
 	void CheckForUpdate();

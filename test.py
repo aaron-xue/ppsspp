@@ -360,7 +360,10 @@ tests_good = [
   "modules/cutrel/kernel/cutrel",
   "modules/idlist/idlist",
   "modules/loadrace/loadrace",
+  "modules/nostart/nostart",
+  "modules/queryinfo/queryinfo",
   "modules/startoptions/startoptions",
+  "modules/startresult/startresult",
   "modules/unresolved/unresolved",
   "net/inet/blocking",
   "net/inet/addr",
@@ -370,10 +373,13 @@ tests_good = [
   "net/inet/polledge",
   "net/inet/reuse",
   "net/inet/errnothread",
+  "net/inet/apscan",
+  "net/inet/apscan2",
+  "net/http/ids",
+  "net/npauth/ticketparam",
   "net/adhoc/abandon",
   "net/adhoc/alerts",
   "net/adhoc/apctlinit",
-  "net/adhoc/discover",
   "net/adhoc/edges",
   "net/adhoc/gamemode",
   "net/adhoc/limits",
@@ -503,6 +509,7 @@ tests_good = [
   "threads/semaphores/refer",
   "threads/semaphores/signal",
   "threads/semaphores/wait",
+  "threads/returnstatus/returnstatus",
   "threads/threads/change",
   "threads/threads/exitstatus",
   "threads/threads/extend",
@@ -597,6 +604,7 @@ tests_good = [
   "video/psmfplayer/stop",
   # Two-console tests: run on two instances, through the built-in relay and in P2P (see run_pair_tests).
   "net/adhoc/pair/basic",
+  "net/adhoc/pair/joinrace",
   "net/adhoc/pair/listsizes",
   "net/adhoc/pair/matching",
   "net/adhoc/pair/matching2",
@@ -756,7 +764,8 @@ tests_next = [
   "net/inet/udp",
   "net/primary/ether",
   # Two-console tests: run on two instances, through the built-in relay and in P2P (see run_pair_tests).
-  "net/adhoc/pair/discover",  # sceNetAdhocDiscover isn't implemented
+  "net/adhoc/discover",  # A console alone sleeps until another comes near; PPSSPP wakes at once
+  "net/adhoc/pair/discover",  # Same, and the host sees a joiner before the joiner sees it (the host leaves first)
   "net/adhoc/pair/flow",  # PDP matches; the PTP send and receive windows aren't emulated
   "net/adhoc/pair/gamemode",
   "net/adhoc/pair/lifecycle",

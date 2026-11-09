@@ -900,7 +900,6 @@ void VulkanRenderManager::RenderThreadFunc() {
 void VulkanRenderManager::PresentWaitThreadFunc() {
 	SetCurrentThreadName("PresentWait");
 
-#if !PPSSPP_VK_STATIC
 	_dbg_assert_(vkWaitForPresentKHR != nullptr);
 
 	uint64_t waitedId = frameIdGen_;
@@ -917,7 +916,6 @@ void VulkanRenderManager::PresentWaitThreadFunc() {
 		}
 		_dbg_assert_(waitedId <= frameIdGen_);
 	}
-#endif
 
 	INFO_LOG(Log::G3D, "Leaving PresentWaitThreadFunc()");
 }
@@ -1116,21 +1114,6 @@ void VulkanRenderManager::BeginFrame(bool enableProfiling, bool enableLogProfile
 VkCommandBuffer VulkanRenderManager::GetInitCmd() {
 	int curFrame = vulkan_->GetCurFrame();
 	return frameData_[curFrame].GetInitCmd(vulkan_);
-}
-
-void VulkanRenderManager::ReportBadStateForDraw() {
-	const char *cause1 = "";
-	char cause2[256];
-	cause2[0] = '\0';
-	if (!curRenderStep_) {
-		cause1 = "No current render step";
-	}
-	if (curRenderStep_ && curRenderStep_->stepType != VKRStepType::RENDER) {
-		cause1 = "Not a render step: ";
-		std::string str = VulkanQueueRunner::StepToString(vulkan_, *curRenderStep_);
-		truncate_cpy(cause2, str);
-	}
-	ERROR_LOG_REPORT_ONCE(baddraw, Log::G3D, "Can't draw: %s%s. Step count: %d", cause1, cause2, (int)steps_.size());
 }
 
 bool VulkanRenderManager::PipelinesPending() {
