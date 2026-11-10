@@ -800,13 +800,10 @@ void GamePauseScreen::CreateViews() {
 	if (!portrait) {
 		AddExtraOptions(mainGroup);
 	}
-	Choice *exit;
-	if (g_Config.bPauseMenuExitsEmulator) {
-		auto di = GetI18NCategory(I18NCat::DIALOG);
-		exit = new Choice(di->T("Exit"), ImageID("I_EXIT"));
-	} else {
-		exit = new Choice(pa->T("Exit to menu"), ImageID("I_EXIT"));
-	}
+	// Winlator launches straight into a game with no browser to return to, so the
+	// pause menu's exit action always quits the whole app (same as the main menu's
+	// "Exit" button) instead of returning to the game browser.
+	Choice *exit = new Choice(GetI18NCategory(I18NCat::DIALOG)->T("Exit"), ImageID("I_EXIT"));
 	exit->SetRoundCorners();
 
 	if (portrait) {
@@ -997,21 +994,13 @@ void GamePauseScreen::OnExit(UI::EventParams &e) {
 	if (!confirmExitMessage.empty()) {
 		auto di = GetI18NCategory(I18NCat::DIALOG);
 		std::string_view title = di->T("Are you sure you want to exit?");
-		screenManager()->push(new UI::MessagePopupScreen(title, confirmExitMessage, di->T("Exit"), di->T("Cancel"), [this](bool result) {
+		screenManager()->push(new UI::MessagePopupScreen(title, confirmExitMessage, di->T("Exit"), di->T("Cancel"), [](bool result) {
 			if (result) {
-				if (g_Config.bPauseMenuExitsEmulator) {
-					System_ExitApp();
-				} else {
-					FinishNextFrame(DR_OK);  // exit game
-				}
+				System_ExitApp();
 			}
 		}));
 	} else {
-		if (g_Config.bPauseMenuExitsEmulator) {
-			System_ExitApp();
-		} else {
-			TriggerFinish(DR_OK);
-		}
+		System_ExitApp();
 	}
 }
 
