@@ -4,25 +4,19 @@ SRC := ../..
 include $(CLEAR_VARS)
 include $(LOCAL_PATH)/Locals.mk
 
-LOCAL_CFLAGS += -DCHDR_SYSTEM_ZLIB -DCHDR_SYSTEM_ZSTD
+LOCAL_CFLAGS += -DCHDR_SYSTEM_ZLIB -DCHDR_SYSTEM_ZSTD -DZ7_ST
 
 CHDR_FILES := \
-	$(SRC)/ext/libchdr/deps/lzma-26.02/src/LzmaDec.c \
+	$(SRC)/ext/libchdr/deps/lzma-24.05/src/LzFind.c \
+	$(SRC)/ext/libchdr/deps/lzma-24.05/src/LzmaEnc.c \
+	$(SRC)/ext/libchdr/deps/lzma-24.05/src/Sort.c \
 	$(SRC)/ext/libchdr/src/libchdr_bitstream.c \
 	$(SRC)/ext/libchdr/src/libchdr_cdrom.c \
 	$(SRC)/ext/libchdr/src/libchdr_chd.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_avhuff.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_cdfl.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_cdlz.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_cdzl.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_cdzs.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_flac.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_huff.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_lzma.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_zlib.c \
-	$(SRC)/ext/libchdr/src/libchdr_codec_zstd.c \
 	$(SRC)/ext/libchdr/src/libchdr_flac.c \
 	$(SRC)/ext/libchdr/src/libchdr_huffman.c
+
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../ext/libchdr/deps/lzma-24.05/include
 
 LOCAL_MODULE := libchdr
 LOCAL_SRC_FILES := $(CHDR_FILES)
@@ -250,39 +244,29 @@ AT3_STANDALONE_FILES := \
 	${SRC}/ext/at3_standalone/mem.cpp
 
 RCHEEVOS_FILES := \
-  ${SRC}/ext/rcheevos/src/api/rc_api_common.c \
-  ${SRC}/ext/rcheevos/src/api/rc_api_editor.c \
-  ${SRC}/ext/rcheevos/src/api/rc_api_info.c \
-  ${SRC}/ext/rcheevos/src/api/rc_api_runtime.c \
-  ${SRC}/ext/rcheevos/src/api/rc_api_user.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_async.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_do_frame.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_external.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_game.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_info.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_load.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_raintegration.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_server.c \
-  ${SRC}/ext/rcheevos/src/client/rc_client_user.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_alloc.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_condition.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_condset.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_consoleinfo.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_format.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_lboard.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_memref.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_operand.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_richpresence.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_runtime.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_runtime_progress.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_trigger.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_typed_value.c \
-  ${SRC}/ext/rcheevos/src/runtime/rc_value.c \
-  ${SRC}/ext/rcheevos/src/util/md5.c \
-  ${SRC}/ext/rcheevos/src/util/rc_compat.c \
-  ${SRC}/ext/rcheevos/src/util/rc_util.c \
-  ${SRC}/ext/rcheevos/src/util/rc_version.c
+  ${SRC}/ext/rcheevos/src/rapi/rc_api_common.c \
+  ${SRC}/ext/rcheevos/src/rapi/rc_api_editor.c \
+  ${SRC}/ext/rcheevos/src/rapi/rc_api_info.c \
+  ${SRC}/ext/rcheevos/src/rapi/rc_api_runtime.c \
+  ${SRC}/ext/rcheevos/src/rapi/rc_api_user.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/alloc.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/condition.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/condset.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/consoleinfo.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/format.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/lboard.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/memref.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/operand.c \
+  ${SRC}/ext/rcheevos/src/rc_client.c \
+  ${SRC}/ext/rcheevos/src/rc_util.c \
+  ${SRC}/ext/rcheevos/src/rc_compat.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/rc_validate.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/richpresence.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/runtime.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/runtime_progress.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/trigger.c \
+  ${SRC}/ext/rcheevos/src/rcheevos/value.c \
+  ${SRC}/ext/rcheevos/src/rhash/md5.c
 
 ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
 	ADRENOTOOLS_FILES := \
