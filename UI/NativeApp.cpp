@@ -446,6 +446,8 @@ void runImDebugger(Draw::DrawContext *draw) {
 		SetOverrideScreenFrame(nullptr);
 		if (imDebugger_) {
 			imDebugger_->OnHidden();
+			// Key events don't reach imgui while it's hidden, so it would miss the release of a key held when it closed.
+			ImGui::GetIO().ClearInputKeys();
 		}
 	}
 
@@ -899,6 +901,9 @@ void NativeInit(int argc, const char *argv[], const CommandLineOptions &cmdLineO
 		if (equals(cmdLineOptions.startScreen.value(), "touchscreentest")) {
 			g_screenManager->switchScreen(new MainScreen());
 			g_screenManager->push(new TouchTestScreen(Path()));
+		} else if (equals(cmdLineOptions.startScreen.value(), "colortest")) {
+			g_screenManager->switchScreen(new MainScreen());
+			g_screenManager->push(new ColorTestScreen());
 		} else if (equals(cmdLineOptions.startScreen.value(), "gamesettings")) {
 			g_screenManager->switchScreen(new LogoScreen(AfterLogoScreen::TO_GAME_SETTINGS));
 		} else if (equals(cmdLineOptions.startScreen.value(), "developertools")) {

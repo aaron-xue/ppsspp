@@ -899,6 +899,7 @@ static constexpr const char *androidHwScaleNames[] = { "Native device resolution
 static constexpr const char *frameSkipNames[] = { "Off", "1", "2", "3", "4" };
 static constexpr const char *skipGPUReadbackModeNames[] = { "No", "Skip", "Copy to texture" };
 static constexpr const char *depthRasterModeNames[] = { "Auto", "Low", "Off", "Always on" };
+static constexpr const char *frameRateLimit30Names[] = { "Auto", "Always", "Off" };
 static constexpr const char *bloomHackNames[] = { "Off", "Safe", "Balanced", "Aggressive" };
 static constexpr const char *inflightFramesNames[] = { "No buffer", "Up to 1", "Up to 2" };
 static constexpr const char *texScalingTypeNames[] = { "xBRZ", "Hybrid", "Bicubic", "Hybrid + Bicubic" };
@@ -1043,6 +1044,8 @@ static constexpr ConfigSetting graphicsSettings[] = {
 		.Label(I18NCat::GRAPHICS, "Buffer graphics commands").Choices(inflightFramesNames, 1),
 	ConfigSetting("RenderDuplicateFrames", SETTING(g_Config, bRenderDuplicateFrames), false, CfgFlag::PER_GAME)
 		.Label(I18NCat::GRAPHICS, "Render duplicate frames to 60hz"),
+	ConfigSetting("LimitFrameRateTo30", SETTING(g_Config, iLimitFrameRateTo30), (int)FrameRateLimit30::AUTO, CfgFlag::PER_GAME | CfgFlag::REPORT)
+		.Label(I18NCat::GRAPHICS, "Limit framerate to 30 fps").Choices(frameRateLimit30Names),
 
 	ConfigSetting("MultiThreading", SETTING(g_Config, bRenderMultiThreading), true, CfgFlag::DEFAULT)
 		.Label(I18NCat::DEVELOPER, "Multi-threaded rendering"),
@@ -1144,6 +1147,7 @@ static constexpr ConfigSetting soundSettings[] = {
 		.Label(I18NCat::AUDIO, "Reverb volume").Range(VOLUME_OFF, 2 * VOLUMEHI_FULL).Units("%").ZeroLabel("Disabled"),
 	ConfigSetting("AltSpeedRelativeVolume", SETTING(g_Config, iAltSpeedVolume), VOLUMEHI_FULL, CfgFlag::PER_GAME)
 		.Label(I18NCat::AUDIO, "Alternate speed volume").Range(VOLUME_OFF, VOLUMEHI_FULL).Units("%").ZeroLabel("Mute"),
+	ConfigSetting("ReverbFilter", SETTING(g_Config, bReverbFilter), true, CfgFlag::PER_GAME),
 	ConfigSetting("AchievementVolume", SETTING(g_Config, iAchievementVolume), &DefaultAchievementVolume, CfgFlag::PER_GAME)
 		.Label(I18NCat::AUDIO, "Achievement sound volume").Range(VOLUME_OFF, VOLUMEHI_FULL).Units("%").ZeroLabel("Mute"),
 	ConfigSetting("UIVolume", SETTING(g_Config, iUIVolume), 75, CfgFlag::DEFAULT)
@@ -1505,6 +1509,17 @@ static constexpr ConfigSetting systemParamSettings[] = {
 	ConfigSetting("XmbThemeWallpaperMode", SETTING(g_Config, iXmbThemeWallpaperMode), 0, CfgFlag::DEFAULT),
 	ConfigSetting("XmbThemeSystemColor", SETTING(g_Config, iXmbThemeSystemColor), 0, CfgFlag::DEFAULT),
 	ConfigSetting("XmbThemeCustomThemeMode", SETTING(g_Config, iXmbThemeCustomThemeMode), 0, CfgFlag::DEFAULT),
+	ConfigSetting("XmbVideoMenuLanguage", SETTING(g_Config, sXmbVideoMenuLanguage), "en", CfgFlag::DEFAULT),
+	ConfigSetting("XmbVideoAudioLanguage", SETTING(g_Config, sXmbVideoAudioLanguage), "00", CfgFlag::DEFAULT),
+	ConfigSetting("XmbVideoSubtitleLanguage", SETTING(g_Config, sXmbVideoSubtitleLanguage), "en", CfgFlag::DEFAULT),
+	ConfigSetting("XmbVideoAppendedVolume", SETTING(g_Config, iXmbVideoAppendedVolume), 0, CfgFlag::DEFAULT),
+	ConfigSetting("XmbVideoLRButtonEnable", SETTING(g_Config, bXmbVideoLRButtonEnable), true, CfgFlag::DEFAULT),
+	ConfigSetting("XmbVideoListPlayMode", SETTING(g_Config, bXmbVideoListPlayMode), true, CfgFlag::DEFAULT),
+	ConfigSetting("XmbVideoTitleDisplayMode", SETTING(g_Config, iXmbVideoTitleDisplayMode), 0, CfgFlag::DEFAULT),
+	ConfigSetting("XmbPhotoSlideshowSpeed", SETTING(g_Config, iXmbPhotoSlideshowSpeed), 1, CfgFlag::DEFAULT),
+	ConfigSetting("XmbCharsetOem", SETTING(g_Config, iXmbCharsetOem), 5, CfgFlag::DEFAULT),
+	ConfigSetting("XmbCharsetAnsi", SETTING(g_Config, iXmbCharsetAnsi), 19, CfgFlag::DEFAULT),
+	ConfigSetting("XmbLockPassword", SETTING(g_Config, sXmbLockPassword), "0000", CfgFlag::DEFAULT),
 	ConfigSetting("MemStickSize", SETTING(g_Config, iMemStickSizeGB), 16, CfgFlag::DEFAULT)
 		.Label(I18NCat::SYSTEM, "Memory Stick size").Range(1, 32).Units("GB"),
 	ConfigSetting("FuseID", SETTING(g_Config, sFuseID), "", CfgFlag::DEFAULT),
