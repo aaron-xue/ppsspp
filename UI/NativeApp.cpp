@@ -779,7 +779,7 @@ void NativeInit(int argc, const char *argv[], const CommandLineOptions &cmdLineO
 
 	if (cmdLineOptions.appendConfig.has_value()) {
 		g_Config.SetAppendedConfigIni(Path(cmdLineOptions.appendConfig.value()));
-		g_Config.LoadAppendedConfig();
+		g_Config.LoadAppendedConfig(false);  // Winlator: do NOT save appended config back to the user's ppsspp.ini (these are temporary launch overrides).
 	}
 
 	// Has to be after the config is loaded: it only starts a service thread if UPnP is enabled,
