@@ -107,6 +107,7 @@ struct JNIEnv {};
 #include "Core/Util/RecentFiles.h"
 #include "Core/System.h"
 #include "Core/EmuThread.h"
+#include "Core/HW/Display.h"
 #include "Core/HLE/sceUsbCam.h"
 #include "Core/HLE/sceUsbGps.h"
 #include "Common/CPUDetect.h"
@@ -615,6 +616,14 @@ static std::string QueryConfig(std::string_view query) {
 		// Whether the game goes to a second display, see ExternalDisplayPresentation.java. The running backend: the
 		// setting is already the new one while the restart prompt for a change is up.
 		return GetGPUBackend() == GPUBackend::VULKAN && g_Config.iExternalDisplay == (int)ExternalDisplayMode::SHOW_GAME ? "1" : "0";
+	} else if (query == "fps") {
+		float vps, fps, actualFps;
+		__DisplayGetFPS(&vps, &fps, &actualFps);
+		snprintf(temp, sizeof(temp), "%0.2f", actualFps);
+		return temp;
+	} else if (query == "flipCount") {
+		snprintf(temp, sizeof(temp), "%d", __DisplayGetFlipCount());
+		return temp;
 	} else {
 		return "";
 	}
